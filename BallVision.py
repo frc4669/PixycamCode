@@ -2,6 +2,7 @@ import threading
 from networktables import NetworkTables
 from pixy import *
 from ctypes import *
+import math
 
 cond = threading.Condition()
 notified = [False]
@@ -19,9 +20,9 @@ with cond:
     print("Waiting")
     if not notified[0]:
         cond.wait()
+print("Connected!")
         
 # Insert your processing code here
-print("Connected!")
 
 table = NetworkTables.getTable("DataTable")
 
@@ -41,6 +42,13 @@ class blocks (Structure):
 
 blocks = BlockArray(100)
 
+#Pixels
+PIXY_IMAGE_WIDTH = 320
+PIXY_IMAGE_HEIGHT = 200
+#Inches
+BALL_DIAMETER = 13
+#Degrees
+PIXY_FOV_ANGLE = 75
 
 # Wait for blocks #
 while 1:
@@ -64,4 +72,9 @@ while 1:
 			table.putNumber("orangeY", blocks[orangeIndex].y)
 			table.putNumber("orangeWidth", blocks[orangeIndex].width)
 			table.putNumber("orangeHeight", blocks[orangeIndex].height)
-      			print '[blocks_TYPE=%d SIG=%d X=%3d Y=%3d WIDTH=%3d HEIGHT=%3d]' % (blocks[orangeIndex].type, blocks[orangeIndex].signature, blocks[orangeIndex].x, blocks[orangeIndex].y, blocks[orangeIndex].width, blocks[orangeIndex].height)
+                        focalLength = PIXY_IMAGE_WIDTH/(2*math.tan(math.radians(PIXY_FOV_ANGLE/2)))
+                        horizontalAngle = math.degrees(math.atan2((blocks[orangeIndex].x - PIXY_IMAGE_WIDTH/2), focalLength))
+                        distance = BALL_DIAMETER * PIXY_IMAGE_WIDTH/ (2 * blocks[orangeIndex].width * math.tan(math.radians(PIXY_FOV_ANGLE / 2)));
+      			print '[blocks_TYPE=%d SIG=%d X=%3d Y=%3d WIDTH=%3d HEIGHT=%3d HORANGLE=%3f DISTANCE=%3f]' % (blocks[orangeIndex].type, blocks[orangeIndex].signature, blocks[orangeIndex].x, blocks[orangeIndex].y, blocks[orangeIndex].width, blocks[orangeIndex].height, horizontalAngle, distance)
+      			
+
