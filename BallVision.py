@@ -26,10 +26,10 @@ print("Connected!")
 
 table = NetworkTables.getTable("DataTable")
 
-print ("Pixy Python SWIG Example -- Get blocks")
-
 # Initialize Pixy Interpreter thread #
-pixy_init()
+if pixy.init()!=0:
+    print("Pixy not connected")
+    exit()
 
 class blocks (Structure):
   _fields_ = [ ("type", c_uint),
@@ -77,4 +77,3 @@ while 1:
                         distance = BALL_DIAMETER * PIXY_IMAGE_WIDTH/ (2 * blocks[orangeIndex].width * math.tan(math.radians(PIXY_FOV_ANGLE / 2)));
       			print '[blocks_TYPE=%d SIG=%d X=%3d Y=%3d WIDTH=%3d HEIGHT=%3d HORANGLE=%3f DISTANCE=%3f]' % (blocks[orangeIndex].type, blocks[orangeIndex].signature, blocks[orangeIndex].x, blocks[orangeIndex].y, blocks[orangeIndex].width, blocks[orangeIndex].height, horizontalAngle, distance)
       			
-

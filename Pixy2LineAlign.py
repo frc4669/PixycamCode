@@ -8,8 +8,6 @@ import math
 cond = threading.Condition()
 notified = [False]
 
-table = NetworkTables.getTable('DataTable')
-
 def connectionListener(connected, info):
     print(info, '; Connected=%s' % connected)
     with cond:
@@ -23,13 +21,16 @@ with cond:
     print("Waiting")
     if not notified[0]:
         cond.wait()
-
-# Insert your processing code here
 print("Connected!")
 
-print ("Pixy2 Python -- Get Line Features")
+# Insert your processing code here
 
-pixy.init ()
+table = NetworkTables.getTable('DataTable')
+
+if pixy.init()!=0:
+    print("Pixy 2 not connected")
+    exit()
+
 pixy.change_prog ("line")
 
 class Vector (Structure):
@@ -54,10 +55,11 @@ while 1:
                         xDifference = vectors[index].m_x1-vectors[index].m_x0
                         distance = math.hypot(yDifference,xDifference)
                         angle = math.degrees(math.asin(xDifference/distance))
-                        table.putNumber("LineX0", vectors[index].m_x0)
-                        table.putNumber("LineY0", vectors[index].m_y0)
-                        table.putNumber("LineX1", vectors[index].m_x1)
-                        table.putNumber("LineY1", vectors[index].m_y1)
-                        table.putNumber("LineAngle", angle)
+                        table.putNumber("LineX0F", vectors[index].m_x0)
+                        table.putNumber("LineY0F", vectors[index].m_y0)
+                        table.putNumber("LineX1F", vectors[index].m_x1)
+                        table.putNumber("LineY1F", vectors[index].m_y1)
+                        table.putNumber("LineAngleF", angle)
                         print '[VECTOR: INDEX=%d X0=%3d Y0=%3d X1=%3d Y1=%3d ANGLE=%3f]' % (vectors[index].m_index, vectors[index].m_x0, vectors[index].m_y0, vectors[index].m_x1, vectors[index].m_y1, angle)
                         
+
