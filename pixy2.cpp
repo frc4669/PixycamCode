@@ -9,6 +9,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <cmath>
 
 #include <networktables/NetworkTableInstance.h>
 #include <wpi/StringRef.h>
@@ -19,17 +20,19 @@
 #include <signal.h>
 #include "libpixyusb2.h"
 
+#define PI 3.14159265
+
 Pixy2 pixycamF;
 Pixy2 pixycamR;
 static bool  run_flag = true;
 const int uidF = -619097246;
 const int uidR = 316060495;
 
-void correctPixies(Pixy2 *pixyF, Pixy2 *pixyR){
-  if(pixyF.callChirp("getUID")==uidF)
+void correctPixies(Pixy2& pixyF, Pixy2& pixyR){
+  if(pixyF.m_link.callChirp("getUID")==uidF)
     return;
   else{
-    std::swap(*pixyF,*pixyR);
+    std::swap(pixyF,pixyR);
   }
 }
 
@@ -96,7 +99,7 @@ int main(int argc, char* argv[]) {
   
   auto ntinst = nt::NetworkTableInstance::GetDefault();
   auto table = ntinst.GetTable("DataTable");
-  inst.startClientTeam(4669); 
+  ntinst.StartClientTeam(4669); 
 
   int  Result;
 
@@ -139,33 +142,34 @@ int main(int argc, char* argv[]) {
   
   while(1)
   {
-    get_line_features();
+    get_line_features(pixycamF);
     if (pixycamF.line.numVectors) {
       for (int index = 0; index<pixycamF.line.numVectors; index++)
       {
         int yDifference = pixycamF.line.vectors[index].m_y1-pixycamF.line.vectors[index].m_y0;
         int xDifference = pixycamF.line.vectors[index].m_x1-pixycamF.line.vectors[index].m_x0;
-        double distance = math.hypot(yDifference,xDifference);
-        double angle = math.degrees(math.asin(xDifference/distance));
-                        table.putNumber("LineX0F", pixycamF.line.vectors[index].m_x0)
-                        table.putNumber("LineY0F", pixycamF.line.vectors[index].m_y0)
-                        table.putNumber("LineX1F", pixycamF.line.vectors[index].m_x1)
-                        table.putNumber("LineY1F", pixycamF.line.vectors[index].m_y1)
-                        table.putNumber("LineAngleF", angle)
+        double distance = hypot(yDifference,xDifference);
+        double angle = asin(xDifference/distance)*180/PI;
+                        table->PutNumber("LineX0F", pixycamF.line.vectors[index].m_x0);
+                        table->PutNumber("LineY0F", pixycamF.line.vectors[index].m_y0);
+                        table->PutNumber("LineX1F", pixycamF.line.vectors[index].m_x1);
+                        table->PutNumber("LineY1F", pixycamF.line.vectors[index].m_y1);
+                        table->PutNumber("LineAngleF", angle);
       }
     }
+    get_line_features(pixycamR);
     if (pixycamR.line.numVectors) {
       for (int index = 0; index<pixycamR.line.numVectors; index++)
       {
         int yDifference = pixycamR.line.vectors[index].m_y1-pixycamR.line.vectors[index].m_y0;
         int xDifference = pixycamR.line.vectors[index].m_x1-pixycamR.line.vectors[index].m_x0;
-        double distance = math.hypot(yDifference,xDifference);
-        double angle = math.degrees(math.asin(xDifference/distance));
-                        table.putNumber("LineX0R", pixycamR.line.vectors[index].m_x0)
-                        table.putNumber("LineY0R", pixycamR.line.vectors[index].m_y0)
-                        table.putNumber("LineX1R", pixycamR.line.vectors[index].m_x1)
-                        table.putNumber("LineY1R", pixycamR.line.vectors[index].m_y1)
-                        table.putNumber("LineAngleR", angle)
+        double distance = hypot(yDifference,xDifference);
+        double angle = asin(xDifference/distance)*180/PI;
+                        table->PutNumber("LineX0R", pixycamR.line.vectors[index].m_x0);
+                        table->PutNumber("LineY0R", pixycamR.line.vectors[index].m_y0);
+                        table->PutNumber("LineX1R", pixycamR.line.vectors[index].m_x1);
+                        table->PutNumber("LineY1R", pixycamR.line.vectors[index].m_y1);
+                        table->PutNumber("LineAngleR", angle);
       }
     }
     if (run_flag == false)
