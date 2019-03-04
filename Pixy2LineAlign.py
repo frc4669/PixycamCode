@@ -34,7 +34,11 @@ if pixy.init()!=0:
     print("Pixy 2 not connected")
     exit()
 
-isFrontLine = (pixy.getUID()==frontUID)
+if(pixy.getUID()==frontUID):
+    isFrontLine = true
+if(pixy.getUID()==rearUID):
+    isFrontLine = false
+
 pixy.change_prog ("line")
 
 class Vector (Structure):
@@ -53,7 +57,7 @@ while 1:
   line_get_all_features ()
   v_count = line_get_vectors (100, vectors)
   
-  if(isFrontLine):
+  if(isFrontLine == true):
     if v_count > 0:
         for index in range (0, v_count):
                             yDifference = vectors[index].m_y1-vectors[index].m_y0
@@ -68,7 +72,7 @@ while 1:
                             print '[VECTOR: INDEX=%d X0=%3d Y0=%3d X1=%3d Y1=%3d ANGLE=%3f]' % (vectors[index].m_index, vectors[index].m_x0, vectors[index].m_y0, vectors[index].m_x1, vectors[index].m_y1, angle)
     else:
         table.putNumber("isLineFDetected", false)
-  else:
+  else if(isFrontLine == false):
     if v_count > 0:
         for index in range (0, v_count):
                             yDifference = vectors[index].m_y1-vectors[index].m_y0
