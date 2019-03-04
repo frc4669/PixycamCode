@@ -5,6 +5,9 @@ import threading
 from networktables import NetworkTables
 import math
 
+frontUID = -619097246
+rearUID = 316060495
+
 cond = threading.Condition()
 notified = [False]
 
@@ -31,7 +34,7 @@ if pixy.init()!=0:
     print("Pixy 2 not connected")
     exit()
 
-isFrontLine = (pixy.getUID()==-619097246)
+isFrontLine = (pixy.getUID()==frontUID)
 pixy.change_prog ("line")
 
 class Vector (Structure):
